@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
+# SPDX-License-Identifier: CC-BY-4.0
+
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+version: 2
+
+formats:
+  - pdf
+
+sphinx:
+   configuration: docs/source/conf.py
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: '3.10'
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+  system_packages: true

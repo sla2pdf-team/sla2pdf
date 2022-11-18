@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
+# SPDX-License-Identifier: MPL-2.0
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
