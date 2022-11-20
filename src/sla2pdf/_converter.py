@@ -3,11 +3,10 @@
 # -- This code needs to remain compatible with Py2 --
 
 import sys
+import ast
 import argparse
 from os.path import dirname
 sys.path.insert(0, dirname(dirname(__file__)))
-
-from sla2pdf._parser import extend_parser
 
 try:
     import scribus
@@ -19,11 +18,19 @@ def parse_args(argv=sys.argv[1:]):
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "inputs",
+        nargs = "+",
+    )
+    parser.add_argument(
         "--outputs", "-o",
         required = True,
         nargs = "+",
     )
-    extend_parser(parser)
+    parser.add_argument(
+        "--params", "-p",
+        required = True,
+        type = ast.literal_eval,
+    )
     
     return parser.parse_args(argv)
 
@@ -33,16 +40,14 @@ def sla_to_pdf(args):
     for in_path, out_path in zip(args.inputs, args.outputs):
         
         scribus.openDoc(in_path)
-        
         pdf = scribus.PDFfile()
-        pdf.compress = True
-        pdf.compressmtd = args.compression.value
-        pdf.quality = args.quality.value
-        pdf.resolution = args.downsample
-        pdf.downsample = args.downsample
+        
+        for key, value in args.params.items():
+            if value is not None:
+                setattr(pdf, key, value)
+        
         pdf.file = out_path
         pdf.save()
-        
         scribus.closeDoc()
 
 

@@ -8,13 +8,8 @@ import shutil
 import logging
 import subprocess
 from pathlib import Path
-from sla2pdf.constants import (
-    ImageQuality,
-    ImageCompression,
-)
 
 logger = logging.getLogger(__name__)
-
 
 Converter = Path(__file__).resolve().parent / "_converter.py"
 Scribus = shutil.which("scribus")
@@ -26,14 +21,34 @@ def _run_command(command):
     subprocess.run(command, check=True, cwd=os.getcwd())
 
 
+#: Default PDF saving parameters.
+DefaultParams = dict(
+    compress = True,
+    compressmtd = 0,  # automatic
+    quality = 1,      # high
+    resolution = 300,
+    downsample = 300,
+)
+
+
 def convert(
         inputs,
         outputs = None,
         hide_gui = True,
-        quality = ImageQuality.HIGH,
-        compression = ImageCompression.JPEG,
-        downsample = 400,
+        params = {},
     ):
+    """
+    Parameters:
+        inputs (typing.Sequence[str|pathlib.Path]):
+            List of input file paths (Scribus SLA documents).
+        outputs (str | pathlib.Path | typing.Sequence[str|pathlib.Path]):
+            Output directory or list of explicit output paths for the PDF files to generate.
+        hide_gui (bool):
+            If True, the Scribus GUI will be hidden using ``QT_QPA_PLATFORM=offscreen``.
+            Otherwise, it will be shown.
+        params (dict):
+            Dictionary of saving parameters (see the Scribus Scripter PDFfile API).
+    """
     
     if Scribus is None:
         raise RuntimeError("Scribus could not be found.")
@@ -57,6 +72,9 @@ def convert(
     if len(input_paths) != len(output_paths):
         raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(input_paths), len(output_paths)))
     
+    conv_params = DefaultParams.copy()
+    conv_params.update(params)
+    
     command = [Scribus, "--no-gui", "--no-splash"]
     if hide_gui:
         command += ["-platform", "offscreen"]
@@ -64,9 +82,7 @@ def convert(
     command += ["--python-script", Converter]
     command += input_paths
     command += ["-o"] + output_paths
-    command += ["--compression", compression.name]
-    command += ["--quality", quality.name]
-    command += ["--downsample", downsample]
+    command += ["-p", conv_params]
     
     _run_command(command)
     

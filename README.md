@@ -56,7 +56,7 @@ convert(
 ## Behaviour
 
 sla2pdf uses lossy image compression by default, to prevent the resulting files from getting too large.
-Quality settings can be controlled precisely using command-line options.
+Quality settings can be controlled using the `--params` option.
 
 
 ## Development
