@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
+import ast
 import logging
 import argparse
 from sla2pdf.runner import convert
@@ -54,14 +55,27 @@ def parse_args():
     return parser.parse_args()
 
 
-def _parse_value(value):
-    value = value.strip()
-    if value.isnumeric():
-        return int(value)
-    elif value.lower() in ("true", "false"):
-        return bool(value.lower().capitalize())
-    elif value[0] == "[" and value[-1] == "]":
-        return [_parse_value(v) for v in value[1:-1].split(",")]
+def _parse_params(params_list):
+    
+    params_dict = {}
+    
+    for param in params_list:
+        
+        key, value = param.split("=", maxsplit=1)
+        key, value = key.strip(), value.strip()
+        
+        if value.isnumeric():
+            value = int(value)
+        elif value.lower() in ("true", "false"):
+            value = bool(value.lower().capitalize())
+        elif value.isalnum():
+            pass
+        else:
+            value = ast.literal_eval(value)
+        
+        params_dict[key] = value
+    
+    return params_dict
 
 
 def main():
@@ -70,18 +84,10 @@ def main():
     logger.setLevel(logging.DEBUG)
     
     args = parse_args()
-    
-    # TODO consider just parsing with ast.literal_eval() instead?
-    params = {}
-    for param in args.params:
-        key, value = param.split("=", maxsplit=1)
-        key = key.strip()
-        params[key] = _parse_value(value)
-        
     convert(
         args.inputs, args.outputs,
         hide_gui = not args.show_gui,
-        params = params,
+        params = _parse_params(args.params),
     )
 
 
