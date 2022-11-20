@@ -43,7 +43,8 @@ def sla_to_pdf(args):
         pdf = scribus.PDFfile()
         
         for key, value in args.params.items():
-            setattr(pdf, key, value)
+            if value is not None:
+                setattr(pdf, key, value)
         
         pdf.file = out_path
         pdf.save()

@@ -68,6 +68,8 @@ def _parse_params(params_list):
             value = int(value)
         elif value.lower() in ("true", "false"):
             value = bool(value.lower().capitalize())
+        elif value.lower() == "none":
+            value = None
         elif value.isalnum():
             pass
         else:
