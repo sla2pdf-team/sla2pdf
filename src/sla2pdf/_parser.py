@@ -18,11 +18,6 @@ def extend_parser(parser):
         nargs = "+",
     )
     parser.add_argument(
-        "--show-gui",
-        action = "store_true",
-        help = "Show the Scribus GUI",
-    )
-    parser.add_argument(
         "--compression",
         type = _get_type(ImageCompression),
         default = ImageCompression.JPEG,

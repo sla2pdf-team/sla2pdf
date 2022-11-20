@@ -33,6 +33,11 @@ def parse_args():
         nargs = "+",
         help = "Either an output directory, or a sequence of explicit output paths. Defaults to the current directory.",
     )
+    parser.add_argument(
+        "--show-gui",
+        action = "store_true",
+        help = "Show the Scribus GUI",
+    )
     extend_parser(parser)
     
     if argcomplete is not None:
@@ -50,7 +55,7 @@ def main():
     
     convert(
         args.inputs, args.outputs,
-        show_gui = args.show_gui,
+        hide_gui = not args.show_gui,
         quality = args.quality,
         compression = args.compression,
         downsample = args.downsample,

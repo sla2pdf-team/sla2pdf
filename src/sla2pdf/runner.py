@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
+__all__ = ["convert"]
+
 import os
 import shutil
 import logging
@@ -27,7 +29,7 @@ def _run_command(command):
 def convert(
         inputs,
         outputs = None,
-        show_gui = False,
+        hide_gui = True,
         quality = ImageQuality.HIGH,
         compression = ImageCompression.JPEG,
         downsample = 400,
@@ -56,7 +58,7 @@ def convert(
         raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(input_paths), len(output_paths)))
     
     command = [Scribus, "--no-gui", "--no-splash"]
-    if not show_gui:
+    if hide_gui:
         command += ["-platform", "offscreen"]
     
     command += ["--python-script", Converter]
