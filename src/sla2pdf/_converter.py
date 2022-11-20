@@ -3,6 +3,7 @@
 # -- This code needs to remain compatible with Py2 --
 
 import sys
+import ast
 import argparse
 from os.path import dirname
 sys.path.insert(0, dirname(dirname(__file__)))
@@ -25,6 +26,11 @@ def parse_args(argv=sys.argv[1:]):
         required = True,
         nargs = "+",
     )
+    parser.add_argument(
+        "--params", "-p",
+        required = True,
+        type = ast.literal_eval,
+    )
     
     return parser.parse_args(argv)
 
@@ -34,11 +40,13 @@ def sla_to_pdf(args):
     for in_path, out_path in zip(args.inputs, args.outputs):
         
         scribus.openDoc(in_path)
-        
         pdf = scribus.PDFfile()
+        
+        for key, value in args.params.items():
+            setattr(pdf, key, value)
+        
         pdf.file = out_path
         pdf.save()
-        
         scribus.closeDoc()
 
 

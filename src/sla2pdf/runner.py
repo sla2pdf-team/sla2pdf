@@ -21,11 +21,34 @@ def _run_command(command):
     subprocess.run(command, check=True, cwd=os.getcwd())
 
 
+#: Default PDF saving parameters.
+DefaultParams = dict(
+    compress = True,
+    compressmtd = 0,  # automatic
+    quality = 1,  # high
+    resolution = 400,
+    downsample = 400,
+)
+
+
 def convert(
         inputs,
         outputs = None,
         hide_gui = True,
+        params = {},
     ):
+    """
+    Parameters:
+        inputs (typing.Sequence[str|pathlib.Path]):
+            List of input file paths (Scribus SLA documents).
+        outputs (str | pathlib.Path | typing.Sequence[str|pathlib.Path]):
+            Output directory or list of explicit output paths for the PDF files to generate.
+        hide_gui (bool):
+            If True, the Scribus GUI will be hidden using ``QT_QPA_PLATFORM=offscreen``.
+            Otherwise, it will be shown.
+        params (dict):
+            Dictionary of saving parameters (see the Scribus Scripter PDFfile API).
+    """
     
     if Scribus is None:
         raise RuntimeError("Scribus could not be found.")
@@ -49,6 +72,9 @@ def convert(
     if len(input_paths) != len(output_paths):
         raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(input_paths), len(output_paths)))
     
+    conv_params = DefaultParams.copy()
+    conv_params.update(params)
+    
     command = [Scribus, "--no-gui", "--no-splash"]
     if hide_gui:
         command += ["-platform", "offscreen"]
@@ -56,6 +82,7 @@ def convert(
     command += ["--python-script", Converter]
     command += input_paths
     command += ["-o"] + output_paths
+    command += ["-p", conv_params]
     
     _run_command(command)
     

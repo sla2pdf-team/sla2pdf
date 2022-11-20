@@ -34,12 +34,18 @@ def parse_args():
     parser.add_argument(
         "--outputs", "-o",
         nargs = "+",
-        help = "Either an output directory, or a sequence of explicit output paths. Defaults to the current directory.",
+        help = "An output directory, or a sequence of explicit output paths. Defaults to the current directory.",
     )
     parser.add_argument(
         "--show-gui",
         action = "store_true",
         help = "Show the Scribus GUI",
+    )
+    parser.add_argument(
+        "--params", "-p",
+        nargs = "+",
+        default = [],
+        help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs). Values can be interpreted as integers, booleans or strings.",
     )
     
     if argcomplete is not None:
@@ -55,9 +61,24 @@ def main():
     
     args = parse_args()
     
+    params = {}
+    
+    for param in args.params:
+        
+        key, value = param.split("=", maxsplit=1)
+        key, value = key.strip(), value.strip()
+        
+        if value.isnumeric():
+            value = int(value)
+        elif value.lower() in ("true", "false"):
+            value = bool(value.lower().capitalize())
+        
+        params[key] = value
+        
     convert(
         args.inputs, args.outputs,
         hide_gui = not args.show_gui,
+        params = params,
     )
 
 
