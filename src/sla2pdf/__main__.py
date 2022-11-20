@@ -5,7 +5,6 @@
 import logging
 import argparse
 from sla2pdf.runner import convert
-from sla2pdf._parser import extend_parser
 from sla2pdf._version import V_SLA2PDF
 
 try:
@@ -22,11 +21,15 @@ def parse_args():
         prog = "sla2pdf",
         description = "Export Scribus SLA documents to PDF from the command line",
     )
-    
     parser.add_argument(
         "--version", "-v",
         action = "version",
         version = "sla2pdf %s" % V_SLA2PDF,
+    )
+    
+    parser.add_argument(
+        "inputs",
+        nargs = "+",
     )
     parser.add_argument(
         "--outputs", "-o",
@@ -38,7 +41,6 @@ def parse_args():
         action = "store_true",
         help = "Show the Scribus GUI",
     )
-    extend_parser(parser)
     
     if argcomplete is not None:
         argcomplete.autocomplete(parser)
@@ -56,9 +58,6 @@ def main():
     convert(
         args.inputs, args.outputs,
         hide_gui = not args.show_gui,
-        quality = args.quality,
-        compression = args.compression,
-        downsample = args.downsample,
     )
 
 

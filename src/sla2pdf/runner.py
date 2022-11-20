@@ -8,13 +8,8 @@ import shutil
 import logging
 import subprocess
 from pathlib import Path
-from sla2pdf.constants import (
-    ImageQuality,
-    ImageCompression,
-)
 
 logger = logging.getLogger(__name__)
-
 
 Converter = Path(__file__).resolve().parent / "_converter.py"
 Scribus = shutil.which("scribus")
@@ -30,9 +25,6 @@ def convert(
         inputs,
         outputs = None,
         hide_gui = True,
-        quality = ImageQuality.HIGH,
-        compression = ImageCompression.JPEG,
-        downsample = 400,
     ):
     
     if Scribus is None:
@@ -64,9 +56,6 @@ def convert(
     command += ["--python-script", Converter]
     command += input_paths
     command += ["-o"] + output_paths
-    command += ["--compression", compression.name]
-    command += ["--quality", quality.name]
-    command += ["--downsample", downsample]
     
     _run_command(command)
     
