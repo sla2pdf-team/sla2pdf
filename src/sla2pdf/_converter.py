@@ -19,7 +19,7 @@ def parse_args(argv=sys.argv[1:]):
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--output", "-o",
+        "--outputs", "-o",
         required = True,
         nargs = "+",
     )
@@ -30,7 +30,7 @@ def parse_args(argv=sys.argv[1:]):
 
 def sla_to_pdf(args):
     
-    for in_path, out_path in zip(args.inputs, args.output):
+    for in_path, out_path in zip(args.inputs, args.outputs):
         
         scribus.openDoc(in_path)
         

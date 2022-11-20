@@ -5,13 +5,7 @@ import os
 import shutil
 import logging
 import subprocess
-from os.path import (
-    join,
-    isfile,
-    dirname,
-    abspath,
-    expanduser,
-)
+from pathlib import Path
 from sla2pdf.constants import (
     ImageQuality,
     ImageCompression,
@@ -20,7 +14,7 @@ from sla2pdf.constants import (
 logger = logging.getLogger(__name__)
 
 
-Converter = join(dirname(__file__), "_converter.py")
+Converter = Path(__file__).resolve().parent / "_converter.py"
 Scribus = shutil.which("scribus")
 
 
@@ -31,8 +25,8 @@ def _run_command(command):
 
 
 def convert(
-        input_paths,
-        output_paths,
+        inputs,
+        outputs = None,
         show_gui = False,
         quality = ImageQuality.HIGH,
         compression = ImageCompression.JPEG,
@@ -42,12 +36,24 @@ def convert(
     if Scribus is None:
         raise RuntimeError("Scribus could not be found.")
     
-    input_paths  = [abspath(expanduser(p)) for p in input_paths]
-    output_paths = [abspath(expanduser(p)) for p in output_paths]
-    
-    missing_inputs = [p for p in input_paths if not isfile(p)]
+    input_paths  = [Path(p).expanduser().resolve() for p in inputs]
+    missing_inputs = [p for p in input_paths if not p.is_file()]
     if len(missing_inputs) > 0:
-        raise FileNotFoundError("The following inputs could not be found: %s" % missing_inputs)
+        raise FileNotFoundError("The following inputs could not be found: %s" % (missing_inputs, ))
+    
+    output_dir = None
+    if not outputs:
+        output_dir = Path.cwd()
+    elif len(outputs) == 1 and Path(outputs[0]).is_dir():
+        output_dir = Path(outputs[0]).expanduser().resolve()
+    
+    if output_dir is None:
+        output_paths = [Path(p).expanduser().resolve() for p in outputs]
+    else:
+        output_paths = [(output_dir / p.name).with_suffix(".pdf") for p in input_paths]
+    
+    if len(input_paths) != len(output_paths):
+        raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(input_paths), len(output_paths)))
     
     command = [Scribus, "--no-gui", "--no-splash"]
     if not show_gui:
@@ -62,6 +68,6 @@ def convert(
     
     _run_command(command)
     
-    missing_outputs = [p for p in output_paths if not isfile(p)]
+    missing_outputs = [p for p in output_paths if not p.is_file()]
     if len(missing_outputs) > 0:
         raise RuntimeError("The following outputs were not generated: %s" % missing_outputs)

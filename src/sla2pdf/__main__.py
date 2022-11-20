@@ -2,17 +2,8 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
-import os
 import logging
 import argparse
-from os.path import (
-    join,
-    isdir,
-    abspath,
-    splitext,
-    basename,
-    expanduser,
-)
 from sla2pdf.runner import convert
 from sla2pdf._parser import extend_parser
 from sla2pdf._version import V_SLA2PDF
@@ -38,9 +29,9 @@ def parse_args():
         version = "sla2pdf %s" % V_SLA2PDF,
     )
     parser.add_argument(
-        "--output-dir", "-o",
-        default = os.getcwd(),
-        help = "Output directory",
+        "--outputs", "-o",
+        nargs = "+",
+        help = "Either an output directory, or a sequence of explicit output paths. Defaults to the current directory.",
     )
     extend_parser(parser)
     
@@ -57,18 +48,8 @@ def main():
     
     args = parse_args()
     
-    input_paths = args.inputs
-    output_dir = abspath(expanduser(args.output_dir))
-    if not isdir(output_dir):
-        raise ValueError("Directory does not exist: '%s'" % output_dir)
-    
-    output_paths = []
-    for inpath in input_paths:
-        out_name = splitext(basename(inpath))[0] + ".pdf"
-        output_paths.append( join(output_dir, out_name) )
-    
     convert(
-        input_paths, output_paths,
+        args.inputs, args.outputs,
         show_gui = args.show_gui,
         quality = args.quality,
         compression = args.compression,
