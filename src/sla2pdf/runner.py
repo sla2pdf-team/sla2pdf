@@ -25,9 +25,9 @@ def _run_command(command):
 DefaultParams = dict(
     compress = True,
     compressmtd = 0,  # automatic
-    quality = 1,  # high
-    resolution = 400,
-    downsample = 400,
+    quality = 1,      # high
+    resolution = 300,
+    downsample = 300,
 )
 
 
