@@ -63,12 +63,15 @@ def _parse_params(params_list):
         
         key, value = param.split("=", maxsplit=1)
         key, value = key.strip(), value.strip()
+        value_lc = value.lower()
         
         if value.isnumeric():
             value = int(value)
-        elif value.lower() in ("true", "false"):
-            value = bool(value.lower().capitalize())
-        elif value.lower() == "none":
+        elif value_lc == "true":
+            value = True
+        elif value_lc == "false":
+            value = False
+        elif value_lc == "none":
             value = None
         elif not value.isalnum():
             value = ast.literal_eval(value)
