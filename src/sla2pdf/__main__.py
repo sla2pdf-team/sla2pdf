@@ -54,6 +54,16 @@ def parse_args():
     return parser.parse_args()
 
 
+def _parse_value(value):
+    value = value.strip()
+    if value.isnumeric():
+        return int(value)
+    elif value.lower() in ("true", "false"):
+        return bool(value.lower().capitalize())
+    elif value[0] == "[" and value[-1] == "]":
+        return [_parse_value(v) for v in value[1:-1].split(",")]
+
+
 def main():
     
     logger.addHandler( logging.StreamHandler() )
@@ -61,19 +71,12 @@ def main():
     
     args = parse_args()
     
+    # TODO consider just parsing with ast.literal_eval() instead?
     params = {}
-    
     for param in args.params:
-        
         key, value = param.split("=", maxsplit=1)
-        key, value = key.strip(), value.strip()
-        
-        if value.isnumeric():
-            value = int(value)
-        elif value.lower() in ("true", "false"):
-            value = bool(value.lower().capitalize())
-        
-        params[key] = value
+        key = key.strip()
+        params[key] = _parse_value(value)
         
     convert(
         args.inputs, args.outputs,
