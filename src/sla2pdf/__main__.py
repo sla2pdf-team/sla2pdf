@@ -46,7 +46,7 @@ def parse_args():
         "--params", "-p",
         nargs = "+",
         default = [],
-        help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs). Values can be interpreted as integers, booleans or strings.",
+        help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs).",
     )
     
     if argcomplete is not None:
@@ -70,9 +70,7 @@ def _parse_params(params_list):
             value = bool(value.lower().capitalize())
         elif value.lower() == "none":
             value = None
-        elif value.isalnum():
-            pass
-        else:
+        elif not value.isalnum():
             value = ast.literal_eval(value)
         
         params_dict[key] = value
