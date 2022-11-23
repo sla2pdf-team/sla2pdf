@@ -63,17 +63,14 @@ def _parse_params(params_list):
         
         key, value = param.split("=", maxsplit=1)
         key, value = key.strip(), value.strip()
-        value_lc = value.lower()
         
         if value.isnumeric():
             value = int(value)
-        elif value_lc == "true":
-            value = True
-        elif value_lc == "false":
-            value = False
-        elif value_lc == "none":
-            value = None
-        elif not value.isalnum():
+        elif value.replace(".", "", 1).isdigit():
+            value = float(value)
+        elif value.lower() in ("true", "false", "none"):
+            value = ast.literal_eval(value.lower().capitalize())
+        elif value[0] in ("(", "[", "{"):
             value = ast.literal_eval(value)
         
         params_dict[key] = value
