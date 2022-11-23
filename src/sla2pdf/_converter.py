@@ -5,8 +5,6 @@
 import sys
 import ast
 import argparse
-from os.path import dirname
-sys.path.insert(0, dirname(dirname(__file__)))
 
 try:
     import scribus
