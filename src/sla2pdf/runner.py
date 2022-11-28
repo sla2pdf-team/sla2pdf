@@ -11,7 +11,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-Converter = Path(__file__).resolve().parent / "_converter.py"
+ModuleDir = Path(__file__).resolve().parent
+ModuleParDir = ModuleDir.parent
+Converter = ModuleDir / "_converter.py"
 Scribus = shutil.which("scribus")
 
 
@@ -80,6 +82,7 @@ def convert(
         command += ["-platform", "offscreen"]
     
     command += ["--python-script", Converter]
+    command += [ModuleParDir]
     command += input_paths
     command += ["-o"] + output_paths
     command += ["-p", conv_params]
