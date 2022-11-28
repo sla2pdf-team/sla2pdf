@@ -2,17 +2,23 @@
 # SPDX-License-Identifier: MPL-2.0
 # -- This code needs to remain compatible with Py2 --
 
-import sys
-import ast
-import argparse
-
 try:
     import scribus
 except ImportError:
     raise RuntimeError("This script must be called from within Scribus.")
 
+import sys
+import ast
+import argparse
 
-def parse_args(argv=sys.argv[1:]):
+# The path of the directory containing the sla2pdf module is always passed as first positional argument and excluded from following parsing
+# This would allow us to use local imports even in the part that runs inside Scribus
+# Note that we cannot use __file__ because Scribus might not necessarily define it (esp. older versions)
+ModuleParDir = sys.argv[1]
+sys.path.insert(0, ModuleParDir)
+
+
+def parse_args(argv=sys.argv[2:]):
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -33,7 +39,9 @@ def parse_args(argv=sys.argv[1:]):
     return parser.parse_args(argv)
 
 
-def sla_to_pdf(args):
+def main():
+    
+    args = parse_args()
     
     for in_path, out_path in zip(args.inputs, args.outputs):
         
@@ -50,4 +58,4 @@ def sla_to_pdf(args):
 
 
 if __name__ == "__main__":
-    sla_to_pdf( parse_args() )
+    main()
