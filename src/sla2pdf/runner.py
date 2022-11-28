@@ -16,10 +16,50 @@ Converter = ModuleDir / "_converter.py"
 Scribus = shutil.which("scribus")
 
 
-def _run_command(command):
-    command = [str(c) for c in command]
-    logger.info(command)
-    subprocess.run(command, check=True, cwd=os.getcwd())
+def run_scribus(args, hide_gui=True):
+    
+    if Scribus is None:
+        raise RuntimeError("Scribus could not be found.")
+    
+    cmd = [Scribus, "--no-gui", "--no-splash"]
+    if hide_gui:
+        cmd += ["-platform", "offscreen"]
+    cmd += ["--python-script", Converter, ModuleDir.parent]
+    cmd += args
+    
+    cmd = [str(c) for c in cmd]
+    logger.info(cmd)
+    
+    subprocess.run(cmd, check=True, cwd=os.getcwd())
+
+
+def _handle_paths(inputs, outputs):
+    
+    in_paths  = [Path(p).expanduser().resolve() for p in inputs]
+    missing_ins = [p for p in in_paths if not p.is_file()]
+    if len(missing_ins) > 0:
+        raise FileNotFoundError("The following inputs could not be found: %s" % (missing_ins, ))
+    
+    output_dir = None
+    if isinstance(outputs, (str, Path)):
+        output_dir = Path(outputs)
+    elif len(outputs) == 1 and Path(outputs[0]).is_dir():
+        output_dir = Path(outputs[0]).expanduser().resolve()
+    
+    if output_dir is None:
+        out_paths = [Path(p).expanduser().resolve() for p in outputs]
+    else:
+        if not output_dir.is_dir():
+            raise NotADirectoryError(output_dir)
+        out_paths = [(output_dir / p.name).with_suffix(".pdf") for p in in_paths]
+    
+    if len(in_paths) != len(out_paths):
+        raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(in_paths), len(out_paths)))
+    
+    if not all(p.suffix.lower() == ".pdf" for p in out_paths):
+        raise ValueError("Not all output paths terminated with '.pdf' suffix")
+    
+    return in_paths, out_paths
 
 
 #: Default PDF saving parameters.
@@ -34,59 +74,31 @@ DefaultParams = dict(
 
 def convert(
         inputs,
-        outputs = None,
-        hide_gui = True,
+        outputs,
         params = {},
+        hide_gui = True,
     ):
     """
     Parameters:
-        inputs (typing.Sequence[str|pathlib.Path]):
+        inputs (list[str|pathlib.Path]):
             List of input file paths (Scribus SLA documents).
-        outputs (str | pathlib.Path | typing.Sequence[str|pathlib.Path]):
+        outputs (str | pathlib.Path | list[str|pathlib.Path]):
             Output directory or list of explicit output paths for the PDF files to generate.
+        params (dict):
+            Dictionary of saving parameters (see the Scribus Scripter PDFfile API).
         hide_gui (bool):
             If True, the Scribus GUI will be hidden using ``QT_QPA_PLATFORM=offscreen``.
             Otherwise, it will be shown.
-        params (dict):
-            Dictionary of saving parameters (see the Scribus Scripter PDFfile API).
     """
     
-    if Scribus is None:
-        raise RuntimeError("Scribus could not be found.")
-    
-    input_paths  = [Path(p).expanduser().resolve() for p in inputs]
-    missing_inputs = [p for p in input_paths if not p.is_file()]
-    if len(missing_inputs) > 0:
-        raise FileNotFoundError("The following inputs could not be found: %s" % (missing_inputs, ))
-    
-    output_dir = None
-    if not outputs:
-        output_dir = Path.cwd()
-    elif len(outputs) == 1 and Path(outputs[0]).is_dir():
-        output_dir = Path(outputs[0]).expanduser().resolve()
-    
-    if output_dir is None:
-        output_paths = [Path(p).expanduser().resolve() for p in outputs]
-    else:
-        output_paths = [(output_dir / p.name).with_suffix(".pdf") for p in input_paths]
-    
-    if len(input_paths) != len(output_paths):
-        raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(input_paths), len(output_paths)))
+    inputs, outputs = _handle_paths(inputs, outputs)
     
     conv_params = DefaultParams.copy()
     conv_params.update(params)
     
-    command = [Scribus, "--no-gui", "--no-splash"]
-    if hide_gui:
-        command += ["-platform", "offscreen"]
+    args = inputs + ["-o"] + outputs + ["-p", conv_params]
+    run_scribus(args, hide_gui=hide_gui)
     
-    command += ["--python-script", Converter, ModuleDir.parent]
-    command += input_paths
-    command += ["-o"] + output_paths
-    command += ["-p", conv_params]
-    
-    _run_command(command)
-    
-    missing_outputs = [p for p in output_paths if not p.is_file()]
-    if len(missing_outputs) > 0:
-        raise RuntimeError("The following outputs were not generated: %s" % missing_outputs)
+    missing_outs = [p for p in outputs if not p.is_file()]
+    if len(missing_outs) > 0:
+        raise RuntimeError("The following outputs were not generated: %s" % missing_outs)

@@ -5,6 +5,7 @@
 import ast
 import logging
 import argparse
+from pathlib import Path
 from sla2pdf.runner import convert
 from sla2pdf._version import V_SLA2PDF
 
@@ -35,6 +36,7 @@ def parse_args():
     parser.add_argument(
         "--outputs", "-o",
         nargs = "+",
+        default = Path.cwd(),
         help = "An output directory, or a sequence of explicit output paths. Defaults to the current directory.",
     )
     parser.add_argument(
