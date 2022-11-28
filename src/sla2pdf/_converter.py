@@ -12,7 +12,7 @@ import ast
 import argparse
 
 # The path of the directory containing the sla2pdf module is always passed as first positional argument and excluded from following parsing
-# This would allow us to use local imports even in the part that runs inside Scribus
+# This would allow us to use local imports even in this part which runs inside Scribus
 # Note that we cannot use __file__ because Scribus might not necessarily define it (esp. older versions)
 ModuleParDir = sys.argv[1]
 sys.path.insert(0, ModuleParDir)
