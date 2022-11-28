@@ -10,10 +10,11 @@ except ImportError:
 import sys
 import ast
 import argparse
+from os.path import join, basename, splitext
 
 # The path of the directory containing the sla2pdf module is always passed as first positional argument and excluded from following parsing
 # This would allow us to use local imports even in this part which runs inside Scribus
-# Note that we cannot use __file__ because Scribus might not necessarily define it (esp. older versions)
+# Note that we cannot use __file__ because some Scribus builds do not define it
 ModuleParDir = sys.argv[1]
 sys.path.insert(0, ModuleParDir)
 
@@ -31,6 +32,11 @@ def parse_args(argv=sys.argv[2:]):
         nargs = "+",
     )
     parser.add_argument(
+        "--converter", "-c",
+        choices = ("pdf", "img"),
+        required = True,
+    )
+    parser.add_argument(
         "--params", "-p",
         required = True,
         type = ast.literal_eval,
@@ -39,21 +45,44 @@ def parse_args(argv=sys.argv[2:]):
     return parser.parse_args(argv)
 
 
+def _set_params(exporter, params):
+    [setattr(exporter, k, v) for k, v in params.items() if v is not None]
+
+
 def main():
     
     args = parse_args()
     
-    for in_path, out_path in zip(args.inputs, args.outputs):
+    for in_path, out in zip(args.inputs, args.outputs):
         
         scribus.openDoc(in_path)
-        pdf = scribus.PDFfile()
         
-        for key, value in args.params.items():
-            if value is not None:
-                setattr(pdf, key, value)
+        if args.converter == "img":
+            
+            exporter = scribus.ImageExport()
+            
+            n_pages = scribus.pageCount()
+            n_digits = len(str(n_pages))
+            prefix = splitext(basename(in_path))[0]
+            suffix = args.params["type"].lower()
+            
+            for n in range(1, n_pages+1):
+                scribus.gotoPage(n)
+                exporter = scribus.ImageExport()
+                _set_params(exporter, args.params)
+                exporter.saveAs( join(out, "%s_%0*d.%s" % (prefix, n_digits, n, suffix)) )
         
-        pdf.file = out_path
-        pdf.save()
+        elif args.converter == "pdf":
+            
+            exporter = scribus.PDFfile()
+            
+            _set_params(exporter, args.params)
+            exporter.file = out
+            exporter.save()
+        
+        else:
+            raise Exception()  # supposed to be unreachable
+        
         scribus.closeDoc()
 
 

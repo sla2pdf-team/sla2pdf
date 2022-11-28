@@ -45,6 +45,12 @@ def parse_args():
         help = "Show the Scribus GUI",
     )
     parser.add_argument(
+        "--converter", "-c",
+        default = "pdf",
+        choices = ("pdf", "img"),
+        help = "The converter to use.",
+    )
+    parser.add_argument(
         "--params", "-p",
         nargs = "+",
         default = [],
@@ -89,6 +95,7 @@ def main():
     convert(
         args.inputs, args.outputs,
         hide_gui = not args.show_gui,
+        converter = args.converter,
         params = _parse_params(args.params),
     )
 
