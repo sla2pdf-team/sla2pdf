@@ -19,7 +19,7 @@ ModuleParDir = sys.argv[1]
 sys.path.insert(0, ModuleParDir)
 
 
-def parse_args(argv=sys.argv[2:]):
+def parse_args(batch):
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -42,16 +42,14 @@ def parse_args(argv=sys.argv[2:]):
         type = ast.literal_eval,
     )
     
-    return parser.parse_args(argv)
+    return parser.parse_args(batch)
 
 
 def _set_params(exporter, params):
     [setattr(exporter, k, v) for k, v in params.items() if v is not None]
 
 
-def main():
-    
-    args = parse_args()
+def worker(args):
     
     for in_path, out in zip(args.inputs, args.outputs):
         
@@ -84,6 +82,13 @@ def main():
             raise Exception()  # supposed to be unreachable
         
         scribus.closeDoc()
+
+
+def main():
+    for batch_str in sys.argv[2:]:
+        batch = ast.literal_eval(batch_str)
+        args = parse_args(batch)
+        worker(args)
 
 
 if __name__ == "__main__":

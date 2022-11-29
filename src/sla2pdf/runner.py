@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
-__all__ = ["convert"]
+__all__ = ["batch_convert"]
 
 import shutil
 import logging
@@ -82,12 +82,11 @@ ConverterToDefaultParams = {
 }
 
 
-def convert(
+def _get_args(
         inputs,
         outputs,
         converter = "pdf",
         params = {},
-        hide_gui = True,
     ):
     
     converter = converter.lower()
@@ -100,16 +99,20 @@ def convert(
         ext = converter
     
     inputs, outputs = _handle_paths(inputs, outputs, converter, ext)
-    
     args = inputs + ["-o"] + outputs + ["-p", conv_params, "-c", converter]
-    run_scribus(args, hide_gui=hide_gui)
+    args = [str(arg) for arg in args]
     
-    if converter == "img":
-        for dir in outputs:
-            assert len( list(dir.iterdir()) ) > 0
-    else:
-        missing = [p for p in outputs if not p.is_file()]
-        if len(missing) > 0:
-            raise RuntimeError("The following outputs were not generated: %s" % (missing, ))
+    return args, outputs
+
+
+def batch_convert(batches, hide_gui=True):
     
-    return outputs
+    all_args = []
+    all_outputs = []
+    
+    for batch in batches:
+        args, outputs = _get_args(**batch)
+        all_args.append(args)
+        all_outputs.append(outputs)
+    
+    run_scribus(all_args, hide_gui=hide_gui)
