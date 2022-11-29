@@ -99,7 +99,7 @@ def main():
     logger.addHandler( logging.StreamHandler() )
     logger.setLevel(logging.DEBUG)
     
-    conv_args = argparse.Namespace()
+    show_gui = False
     
     batches = []
     for argv in split_list(sys.argv[1:], "-"):
@@ -113,11 +113,11 @@ def main():
         )
         batches.append(batch)
         if args.show_gui:
-            conv_args.show_gui = True
+            show_gui = True
     
     batch_convert(
         batches,
-        hide_gui = not conv_args.show_gui,
+        hide_gui = not show_gui,
     )
 
 
