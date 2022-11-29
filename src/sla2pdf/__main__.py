@@ -72,7 +72,7 @@ def parse_args(argv):
         "--outputs", "-o",
         nargs = "+",
         default = Path.cwd(),
-        help = "An output directory, or a sequence of explicit output paths. Defaults to the current directory.",
+        help = "For pdf: A directory, or sequence of explicit paths. For img: A directory, or sequence of directories.",
     )
     parser.add_argument(
         "--converter", "-c",
