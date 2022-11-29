@@ -54,21 +54,16 @@ def parse_params(params_list):
     return params_dict
 
 
-def _common_parser():
+def parse_args(argv):
     parser = argparse.ArgumentParser(
         prog = "sla2pdf",
-        description = "Export Scribus SLA documents to PDF from the command line",
+        description = "Export Scribus SLA documents to PDF from the command line. Multiple argument sets may be given, separated with `-`.",
     )
     parser.add_argument(
         "--version", "-v",
         action = "version",
         version = "sla2pdf %s" % V_SLA2PDF,
     )
-    return parser
-
-
-def parse_batch_args(argv):
-    parser = _common_parser()
     parser.add_argument(
         "inputs",
         nargs = "+",
@@ -91,16 +86,10 @@ def parse_batch_args(argv):
         default = [],
         help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs).",
     )
-    
-    return parser.parse_args(argv)
-
-
-def parse_conv_args(argv):
-    parser = _common_parser()
     parser.add_argument(
         "--show-gui",
         action = "store_true",
-        help = "If given, show the Scribus GUI."
+        help = "If given, show the Scribus GUI (global option)."
     )
     return parser.parse_args(argv)
 
@@ -110,20 +99,21 @@ def main():
     logger.addHandler( logging.StreamHandler() )
     logger.setLevel(logging.DEBUG)
     
-    batch_argvs, conv_argv = split_list(sys.argv[1:], "--", 2)
-    conv_args = parse_conv_args(conv_argv)
+    conv_args = argparse.Namespace()
     
     batches = []
-    for argv in split_list(batch_argvs, "-"):
-        batch_args = parse_batch_args(argv)
-        params = parse_params(batch_args.params)
+    for argv in split_list(sys.argv[1:], "-"):
+        args = parse_args(argv)
+        params = parse_params(args.params)
         batch = dict(
-            inputs = batch_args.inputs,
-            outputs = batch_args.outputs,
-            converter = batch_args.converter,
+            inputs = args.inputs,
+            outputs = args.outputs,
+            converter = args.converter,
             params = params,
         )
         batches.append(batch)
+        if args.show_gui:
+            conv_args.show_gui = True
     
     batch_convert(
         batches,
