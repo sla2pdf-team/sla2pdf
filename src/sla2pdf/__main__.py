@@ -12,20 +12,21 @@ from sla2pdf._version import V_SLA2PDF
 logger = logging.getLogger('sla2pdf')
 
 
-def split_list(list, value):
+def split_list(list, value, min_len=0):
     
     new = []
     sub = []
     
     for item in list:
-        if item == value and len(sub) > 0:
+        if item == value:
             new.append(sub)
             sub = []
         else:
             sub.append(item)
     
-    if len(sub) > 0:
-        new.append(sub)
+    new.append(sub)
+    while len(new) < min_len:
+        new.append([])
     
     return new
 
@@ -109,7 +110,7 @@ def main():
     logger.addHandler( logging.StreamHandler() )
     logger.setLevel(logging.DEBUG)
     
-    batch_argvs, conv_argv = split_list(sys.argv[1:], "--")
+    batch_argvs, conv_argv = split_list(sys.argv[1:], "--", 2)
     conv_args = parse_conv_args(conv_argv)
     
     batches = []
