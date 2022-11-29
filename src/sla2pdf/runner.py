@@ -102,17 +102,25 @@ def _get_args(
     args = inputs + ["-o"] + outputs + ["-p", conv_params, "-c", converter]
     args = [str(arg) for arg in args]
     
-    return args, outputs
+    info = (converter, outputs)
+    
+    return args, info
 
 
 def batch_convert(batches, hide_gui=True):
     
     all_args = []
-    all_outputs = []
+    infos = []
     
     for batch in batches:
-        args, outputs = _get_args(**batch)
+        args, info = _get_args(**batch)
         all_args.append(args)
-        all_outputs.append(outputs)
+        infos.append(info)
     
     run_scribus(all_args, hide_gui=hide_gui)
+    
+    for converter, outputs in infos:
+        if converter == "img":
+            assert all(p.is_dir() for p in outputs)
+        elif converter == "pdf":
+            assert all(p.is_file() for p in outputs)
