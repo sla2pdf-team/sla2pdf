@@ -7,6 +7,7 @@ import shutil
 import logging
 import subprocess
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ ConverterToDefaultParams = {
 }
 
 
-def _get_args(
+def _get_tasks(
         inputs,
         outputs,
         converter = "pdf",
@@ -109,15 +110,18 @@ def _get_args(
 
 def batch_convert(batches, hide_gui=True):
     
-    all_args = []
     infos = []
+    tmp_handle = NamedTemporaryFile(prefix="sla2pdf_", suffix=".txt")
     
     for batch in batches:
-        args, info = _get_args(**batch)
-        all_args.append(args)
+        task, info = _get_tasks(**batch)
+        logger.info(task)
+        tmp_handle.write(str(task).encode() + b"\n")
         infos.append(info)
     
-    run_scribus(all_args, hide_gui=hide_gui)
+    tmp_handle.seek(0)
+    run_scribus([tmp_handle.name], hide_gui=hide_gui)
+    tmp_handle.close()
     
     for converter, outputs in infos:
         if converter == "img":

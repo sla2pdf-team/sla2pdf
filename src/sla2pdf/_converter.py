@@ -84,11 +84,17 @@ def worker(args):
         scribus.closeDoc()
 
 
-def main():
-    for batch_str in sys.argv[2:]:
-        batch = ast.literal_eval(batch_str)
-        args = parse_args(batch)
-        worker(args)
+def main(argv=sys.argv[2:]):
+    
+    if len(argv) != 1:
+        raise Exception()
+    
+    with open(argv[0], "r") as fh:
+        for line in fh:
+            print(line)
+            batch = ast.literal_eval(line)
+            args = parse_args(batch)
+            worker(args)
 
 
 if __name__ == "__main__":
