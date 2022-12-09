@@ -20,43 +20,87 @@ Development installation (points to the source tree, so changes take effect with
 pip install -e .
 ```
 
-In principle, it is also possible to install sla2pdf without setup tooling (Linux instructions):
-* Append the absolute path to `sla2pdf/src` to the environment variable `PYTHONPATH`
-  by adding `export PYTHONPATH=${PYTHONPATH}:${HOME}/.../sla2pdf/src` to `~/.bashrc`
-* Save the code below as `sla2pdf` in `~/.local/bin/`:
-  ```python
-  #! /usr/bin/env python3
-  import sla2pdf.__main__
-  
-  if __name__ == "__main__":
-      sla2pdf.__main__.main()
-  ```
-
 If you have multiple versions of Python 3 installed, note that any of them can be used to install sla2pdf.
 It does not necessarily need to be the one Scribus is linked against, as the module of
 sla2pdf that is run within Scribus will automatically configure its search path appropriately.
 
-## Usage
 
-### Command-line
-<!-- TODO -->
+## Examples
+
+### Command Line
+
+* Export to PDF, placing outputs in the current directory
+```bash
+sla2pdf file1.sla file2.sla
+```
+
+* Export files with explicit output paths
+```
+sla2pdf file1.sla file2.sla -o out1.pdf out2.pdf
+```
+
+* Match SLA files by wildcard and export them to the directory `out/`
+```bash
+sla2pdf *.sla -o out/
+```
+
+* Export to PDF with parameters
+  
+  The parser accepts integers, floats, booleans (case-insensitive), lists, tuples and dictionaries in Python syntax. Anything else is interpreted as string.
+
+```bash
+sla2pdf file1.sla --params compress=true compressmtd=1 quality=2 version=16
+```
+
+* Export to image
+```bash
+sla2pdf file1.sla file2.sla -c img -o out1/ out2/ --params type=JPG
+```
+
+* Run multiple tasks, separated by `-` (avoids re-starting scribus)
+```bash
+sla2pdf file1.sla - file2.sla --params quality=2 - file2.sla -c img out/
+```
+
 
 ### Python API
 
-```python
-from sla2pdf.runner import convert
+Basic batch conversion usage:
 
-convert(
-    ["path/to/input.sla", ...],   # sequence of input documents
-    ["path/to/output.pdf", ...],  # sequence of output paths
+```python
+from sla2pdf.runner import batch_convert
+
+pdf_params = dict(
+    compressmtd=1,  # JPEG
+    quality=2,      # Medium
+    version=16,     # PDF 1.6 standard
 )
+pdf_task = dict(
+    inputs=["file1.sla", "file2.sla"],  # input files
+    outputs=["out1.pdf", "out2.pdf"],   # output destinations (file paths, or a directory)
+    converter="pdf",    # pdf converter
+    params=pdf_params,  # custom pdf export parameters
+)
+
+img_params = dict(
+    dpi=300,  # resultion
+    transparentBkgnd=True,  # transparent background
+    type="PNG",  # image format
+)
+img_task = dict(
+    inputs=["file3.sla", "file4.sla"],  # input files
+    outputs=["out3/", "out4/"],         # output destinations (sequence of directories)
+    converter="img",    # image converter
+    params=img_params,  # custom image export parameters
+),
+
+batch_convert([pdf_task, img_task], hide_gui=True)  # run it
 ```
 
 
 ## Behaviour
 
-sla2pdf uses lossy image compression by default, to prevent the resulting files from getting too large.
-Quality settings can be controlled using the `--params` option.
+sla2pdf uses lossy image compression by default. Quality settings can be controlled using the `--params` option.
 
 
 ## Development
