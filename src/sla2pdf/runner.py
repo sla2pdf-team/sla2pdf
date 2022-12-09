@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
-__all__ = ["convert"]
+__all__ = ["batch_convert"]
 
-import os
 import shutil
 import logging
 import subprocess
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(__name__)
 
@@ -24,46 +24,41 @@ def run_scribus(args, hide_gui=True):
     cmd = [Scribus, "--no-gui", "--no-splash"]
     if hide_gui:
         cmd += ["-platform", "offscreen"]
-    cmd += ["--python-script", Converter, ModuleDir.parent]
-    cmd += args
+    cmd += ["--python-script", Converter, ModuleDir.parent] + args
     
     cmd = [str(c) for c in cmd]
     logger.info(cmd)
     
-    subprocess.run(cmd, check=True, cwd=os.getcwd())
+    subprocess.run(cmd, check=True, cwd=str(Path.cwd()))
 
 
-def _handle_paths(inputs, outputs):
+def _handle_paths(inputs, outputs, converter, ext):
     
-    in_paths  = [Path(p).expanduser().resolve() for p in inputs]
-    missing_ins = [p for p in in_paths if not p.is_file()]
-    if len(missing_ins) > 0:
-        raise FileNotFoundError("The following inputs could not be found: %s" % (missing_ins, ))
+    inputs  = [Path(p).expanduser().resolve() for p in inputs]
+    missing = [p for p in inputs if not p.is_file()]
+    if len(missing) > 0:
+        raise FileNotFoundError("The following inputs could not be found: %s" % (missing, ))
     
-    output_dir = None
-    if isinstance(outputs, (str, Path)):
-        output_dir = Path(outputs)
-    elif len(outputs) == 1 and Path(outputs[0]).is_dir():
-        output_dir = Path(outputs[0]).expanduser().resolve()
+    if not isinstance(outputs, (tuple, list)):
+        outputs = [outputs]
+    outputs = [Path(p).expanduser().resolve() for p in outputs]
     
-    if output_dir is None:
-        out_paths = [Path(p).expanduser().resolve() for p in outputs]
+    if converter == "img":
+        assert all(p.is_dir() for p in outputs)
+        while len(outputs) < len(inputs):
+            outputs.append(outputs[-1])
     else:
-        if not output_dir.is_dir():
-            raise NotADirectoryError(output_dir)
-        out_paths = [(output_dir / p.name).with_suffix(".pdf") for p in in_paths]
+        if len(outputs) == 1 and outputs[0].is_dir():
+            outputs = [(outputs[0] / p.name).with_suffix("."+ext) for p in inputs]
+        assert all(p.suffix.endswith("."+ext) for p in outputs)
     
-    if len(in_paths) != len(out_paths):
-        raise ValueError("Length of inputs and outputs does not match (%s != %s)" % (len(in_paths), len(out_paths)))
+    assert len(inputs) == len(outputs)
     
-    if not all(p.suffix.lower() == ".pdf" for p in out_paths):
-        raise ValueError("Not all output paths terminated with '.pdf' suffix")
-    
-    return in_paths, out_paths
+    return inputs, outputs
 
 
 #: Default PDF saving parameters.
-DefaultParams = dict(
+DefaultParamsPdf = dict(
     compress = True,
     compressmtd = 0,  # automatic
     quality = 1,      # high
@@ -72,33 +67,64 @@ DefaultParams = dict(
 )
 
 
-def convert(
+#: Default image saving parameters.
+DefaultParamsImg = dict(
+    dpi = 300,
+    quality = 100,
+    scale = 100,
+    transparentBkgnd = False,
+    type = "PNG",
+)
+
+
+ConverterToDefaultParams = {
+    "pdf": DefaultParamsPdf,
+    "img": DefaultParamsImg,
+}
+
+
+def _get_tasks(
         inputs,
         outputs,
+        converter = "pdf",
         params = {},
-        hide_gui = True,
     ):
-    """
-    Parameters:
-        inputs (list[str|pathlib.Path]):
-            List of input file paths (Scribus SLA documents).
-        outputs (str | pathlib.Path | list[str|pathlib.Path]):
-            Output directory or list of explicit output paths for the PDF files to generate.
-        params (dict):
-            Dictionary of saving parameters (see the Scribus Scripter PDFfile API).
-        hide_gui (bool):
-            If True, the Scribus GUI will be hidden using ``QT_QPA_PLATFORM=offscreen``.
-            Otherwise, it will be shown.
-    """
     
-    inputs, outputs = _handle_paths(inputs, outputs)
-    
-    conv_params = DefaultParams.copy()
+    converter = converter.lower()
+    conv_params = ConverterToDefaultParams[converter].copy()
     conv_params.update(params)
     
-    args = inputs + ["-o"] + outputs + ["-p", conv_params]
-    run_scribus(args, hide_gui=hide_gui)
+    if converter == "img":
+        ext = conv_params["type"].lower()
+    else:
+        ext = converter
     
-    missing_outs = [p for p in outputs if not p.is_file()]
-    if len(missing_outs) > 0:
-        raise RuntimeError("The following outputs were not generated: %s" % missing_outs)
+    inputs, outputs = _handle_paths(inputs, outputs, converter, ext)
+    args = inputs + ["-o"] + outputs + ["-p", conv_params, "-c", converter]
+    args = [str(arg) for arg in args]
+    
+    info = (converter, outputs)
+    
+    return args, info
+
+
+def batch_convert(batches, hide_gui=True):
+    
+    infos = []
+    tmp_handle = NamedTemporaryFile(prefix="sla2pdf_", suffix=".txt")
+    
+    for batch in batches:
+        task, info = _get_tasks(**batch)
+        logger.info(task)
+        tmp_handle.write(str(task).encode() + b"\n")
+        infos.append(info)
+    
+    tmp_handle.seek(0)
+    run_scribus([tmp_handle.name], hide_gui=hide_gui)
+    tmp_handle.close()
+    
+    for converter, outputs in infos:
+        if converter == "img":
+            assert all(p.is_dir() for p in outputs)
+        elif converter == "pdf":
+            assert all(p.is_file() for p in outputs)

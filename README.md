@@ -64,6 +64,7 @@ Quality settings can be controlled using the `--params` option.
 Relevant Scribus links:
 
 * https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-doc.html
+* https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-page.html
 * https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-PDFfile.html
 * https://scribus.net/websvn/listing.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2F&#af20fbfeebfcfd73863fd3438754d4fed
 * https://wiki.scribus.net/canvas/Command_line_scripts
