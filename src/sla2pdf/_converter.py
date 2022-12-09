@@ -49,7 +49,7 @@ def _set_params(exporter, params):
     [setattr(exporter, k, v) for k, v in params.items() if v is not None]
 
 
-def worker(args):
+def export(args):
     
     for in_path, out in zip(args.inputs, args.outputs):
         
@@ -79,22 +79,22 @@ def worker(args):
             exporter.save()
         
         else:
-            raise Exception()  # supposed to be unreachable
+            assert False
         
         scribus.closeDoc()
 
 
 def main(argv=sys.argv[2:]):
     
-    if len(argv) != 1:
-        raise Exception()
+    assert len(argv) == 1
+    instru_file = argv[0]
     
-    with open(argv[0], "r") as fh:
+    with open(instru_file, "r") as fh:
         for line in fh:
-            print(line)
+            print(line, file=sys.stderr)
             batch = ast.literal_eval(line)
             args = parse_args(batch)
-            worker(args)
+            export(args)
 
 
 if __name__ == "__main__":
