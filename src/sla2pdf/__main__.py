@@ -48,6 +48,8 @@ def parse_params(params_list):
             value = ast.literal_eval(value.lower().capitalize())
         elif value[0] in ("(", "[", "{"):
             value = ast.literal_eval(value)
+        elif value[0] in ("'", '"') or value[:2] in ("b'", 'b"'):
+            value = ast.literal_eval(value)
         
         params_dict[key] = value
     

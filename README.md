@@ -46,7 +46,8 @@ sla2pdf *.sla -o out/
 
 * Export to PDF with parameters
   
-  The parser accepts integers, floats, booleans (case-insensitive), lists, tuples and dictionaries in Python syntax. Anything else is interpreted as string.
+  The parser accepts integers, floats, booleans (case-insensitive), lists, tuples, dictionaries and byte strings in Python syntax. Anything else is interpreted as string.
+  String interpretation may also be enforced with quotes (use `\` escaping as necessary).
 
 ```bash
 sla2pdf file1.sla --params compress=true compressmtd=1 quality=2 version=16
