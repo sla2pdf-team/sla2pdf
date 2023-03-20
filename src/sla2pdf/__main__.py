@@ -12,6 +12,46 @@ from sla2pdf._version import V_SLA2PDF
 logger = logging.getLogger('sla2pdf')
 
 
+def parse_args(argv):
+    parser = argparse.ArgumentParser(
+        prog = "sla2pdf",
+        description = "Export Scribus SLA documents to PDF from the command line. Multiple argument sets may be given, separated with `-`.",
+    )
+    parser.add_argument(
+        "--version", "-v",
+        action = "version",
+        version = "sla2pdf %s" % V_SLA2PDF,
+    )
+    parser.add_argument(
+        "inputs",
+        nargs = "+",
+    )
+    parser.add_argument(
+        "--outputs", "-o",
+        nargs = "+",
+        default = Path.cwd(),
+        help = "For pdf: A directory, or sequence of explicit paths. For img: A directory, or sequence of directories.",
+    )
+    parser.add_argument(
+        "--converter", "-c",
+        default = "pdf",
+        choices = ("pdf", "img"),
+        help = "The converter to use.",
+    )
+    parser.add_argument(
+        "--params", "-p",
+        nargs = "+",
+        default = [],
+        help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs).",
+    )
+    parser.add_argument(
+        "--show-gui",
+        action = "store_true",
+        help = "If given, show the Scribus GUI (global option)."
+    )
+    return parser.parse_args(argv)
+
+
 def split_list(list, value, min_len=0):
     
     new = []
@@ -56,51 +96,12 @@ def parse_params(params_list):
     return params_dict
 
 
-def parse_args(argv):
-    parser = argparse.ArgumentParser(
-        prog = "sla2pdf",
-        description = "Export Scribus SLA documents to PDF from the command line. Multiple argument sets may be given, separated with `-`.",
-    )
-    parser.add_argument(
-        "--version", "-v",
-        action = "version",
-        version = "sla2pdf %s" % V_SLA2PDF,
-    )
-    parser.add_argument(
-        "inputs",
-        nargs = "+",
-    )
-    parser.add_argument(
-        "--outputs", "-o",
-        nargs = "+",
-        default = Path.cwd(),
-        help = "For pdf: A directory, or sequence of explicit paths. For img: A directory, or sequence of directories.",
-    )
-    parser.add_argument(
-        "--converter", "-c",
-        default = "pdf",
-        choices = ("pdf", "img"),
-        help = "The converter to use.",
-    )
-    parser.add_argument(
-        "--params", "-p",
-        nargs = "+",
-        default = [],
-        help = "A sequence of Scribus key=value PDF saving paramters (see the Scribus Scripter docs).",
-    )
-    parser.add_argument(
-        "--show-gui",
-        action = "store_true",
-        help = "If given, show the Scribus GUI (global option)."
-    )
-    return parser.parse_args(argv)
-
-
 def main():
     
     logger.addHandler( logging.StreamHandler() )
     logger.setLevel(logging.DEBUG)
     
+    # TODO see if we can implement global options in a better way
     show_gui = False
     
     batches = []

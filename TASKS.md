@@ -4,6 +4,7 @@
 # Tasks
 
 * Add page selection for image export.
+* CLI: See if we can implement global options in a better way.
 * Support further output formats other than PDF and image (in spite of the project's name).
 * Improve default parameters, consider using lossless PDF compression by default
 * Improve the readme
