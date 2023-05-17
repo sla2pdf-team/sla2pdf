@@ -20,7 +20,7 @@ def parse_args(argv):
     parser.add_argument(
         "--version", "-v",
         action = "version",
-        version = "sla2pdf %s" % V_SLA2PDF,
+        version = f"sla2pdf {V_SLA2PDF}",
     )
     parser.add_argument(
         "inputs",

@@ -32,6 +32,9 @@ def run_scribus(args, hide_gui=True):
     subprocess.run(cmd, check=True, cwd=str(Path.cwd()))
 
 
+# FIXME the path handling below is a mess and not necessary in the library interface
+# -> TODO delegate end-user only functionality to the CLI
+
 def _handle_paths(inputs, outputs, converter, ext):
     
     inputs  = [Path(p).expanduser().resolve() for p in inputs]
@@ -83,21 +86,12 @@ ConverterToDefaultParams = {
 }
 
 
-def _get_tasks(
-        inputs,
-        outputs,
-        converter = "pdf",
-        params = {},
-    ):
+def _get_tasks(inputs, outputs, converter="pdf", params={}):
     
     converter = converter.lower()
     conv_params = ConverterToDefaultParams[converter].copy()
     conv_params.update(params)
-    
-    if converter == "img":
-        ext = conv_params["type"].lower()
-    else:
-        ext = converter
+    ext = conv_params["type"].lower() if converter == "img" else converter
     
     inputs, outputs = _handle_paths(inputs, outputs, converter, ext)
     args = inputs + ["-o"] + outputs + ["-p", conv_params, "-c", converter]

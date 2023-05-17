@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2022 geisserml <geisserml@gmail.com>
 # SPDX-License-Identifier: MPL-2.0
 
+# NOTE This file may only be called by the package manager - end users should not run it directly
+
 import setuptools
 from os.path import join, dirname
 

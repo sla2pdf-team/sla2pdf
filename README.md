@@ -8,7 +8,7 @@ Runs Scribus in a subprocess with a custom Python script.
 
 ## Installation
 
-sla2pdf can be installed via `pip`, like any other Python project:
+sla2pdf may be installed via `pip`, like any other Python project:
 
 Normal installation (copies a snapshot of the code to a python package directory)
 ```bash
@@ -20,9 +20,8 @@ Development installation (points to the source tree, so changes take effect with
 pip install -e .
 ```
 
-If you have multiple versions of Python 3 installed, note that any of them can be used to install sla2pdf.
-It does not necessarily need to be the one Scribus is linked against, as the module of
-sla2pdf that is run within Scribus will automatically configure its search path appropriately.
+If you have multiple versions of Python 3 installed, any of them may be used to install sla2pdf.
+It does not necessarily need to be the one Scribus is linked against.
 
 
 ## Examples
