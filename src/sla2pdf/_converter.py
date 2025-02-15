@@ -57,8 +57,6 @@ def export(args):
         
         if args.converter == "img":
             
-            exporter = scribus.ImageExport()
-            
             n_pages = scribus.pageCount()
             n_digits = len(str(n_pages))
             prefix = splitext(basename(in_path))[0]
@@ -73,7 +71,6 @@ def export(args):
         elif args.converter == "pdf":
             
             exporter = scribus.PDFfile()
-            
             _set_params(exporter, args.params)
             exporter.file = out
             exporter.save()
