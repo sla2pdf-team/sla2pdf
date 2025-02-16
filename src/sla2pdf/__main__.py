@@ -15,7 +15,7 @@ logger = logging.getLogger('sla2pdf')
 def parse_args(argv):
     parser = argparse.ArgumentParser(
         prog = "sla2pdf",
-        description = "Export Scribus SLA documents to PDF from the command line. Multiple argument sets may be given, separated with `-`.",
+        description = "Export Scribus SLA documents to PDF from the command line. Multiple argument sets may be given, separated by `-`.",
     )
     parser.add_argument(
         "--version", "-v",
@@ -52,22 +52,15 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def split_list(list, value, min_len=0):
-    
-    new = []
-    sub = []
-    
+def split_list(list, value):
+    new, sub = [], []
     for item in list:
         if item == value:
             new.append(sub)
             sub = []
         else:
             sub.append(item)
-    
     new.append(sub)
-    while len(new) < min_len:
-        new.append([])
-    
     return new
 
 
@@ -80,6 +73,7 @@ def parse_params(params_list):
         key, value = param.split("=", maxsplit=1)
         key, value = key.strip(), value.strip()
         
+        # NOTE the reason why we check for the various types explicitly rather than just using literal_eval() generally is that we want to allow non-quoted strings, to align with command-line interpreter semantics
         if value.isnumeric():
             value = int(value)
         elif value.replace(".", "", 1).isdigit():
