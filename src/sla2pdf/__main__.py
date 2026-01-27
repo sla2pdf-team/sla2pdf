@@ -78,7 +78,7 @@ def parse_params(params_list):
             value = ast.literal_eval(value.lower().capitalize())
         elif ( value[0] in ("(", "[", "{", "'", '"')
             or value[:2] in ("b'", 'b"')
-            or value.isnumeric() or value.replace(".", "", 1).isdigit()
+            or value.lstrip("-+").replace(".", "", 1).isdecimal()
             ):
             value = ast.literal_eval(value)
         
