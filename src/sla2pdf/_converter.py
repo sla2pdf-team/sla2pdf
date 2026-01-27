@@ -46,7 +46,10 @@ def parse_args(batch):
 
 
 def _set_params(exporter, params):
-    [setattr(exporter, k, v) for k, v in params.items() if v is not None]
+    for k, v in params.items():
+        # XXX Shouldn't assigning None be an option too? To unset one of our defaults, an unambiguous sentinel could be used instead.
+        if v is not None:
+            setattr(exporter, k, v)
 
 
 def export(args):

@@ -73,16 +73,13 @@ def parse_params(params_list):
         key, value = param.split("=", maxsplit=1)
         key, value = key.strip(), value.strip()
         
-        # NOTE the reason why we check for the various types explicitly rather than just using literal_eval() generally is that we want to allow non-quoted strings, to align with command-line interpreter semantics
-        if value.isnumeric():
-            value = int(value)
-        elif value.replace(".", "", 1).isdigit():
-            value = float(value)
-        elif value.lower() in ("true", "false", "none"):
+        # Don't use literal_eval() generally, we want to allow non-quoted strings to align with command-line interpreter semantics. Instead, handle the cases that need to be eval'ed explicitly.
+        if value.lower() in ("true", "false", "none"):
             value = ast.literal_eval(value.lower().capitalize())
-        elif value[0] in ("(", "[", "{"):
-            value = ast.literal_eval(value)
-        elif value[0] in ("'", '"') or value[:2] in ("b'", 'b"'):
+        elif ( value[0] in ("(", "[", "{", "'", '"')
+            or value[:2] in ("b'", 'b"')
+            or value.isnumeric() or value.replace(".", "", 1).isdigit()
+            ):
             value = ast.literal_eval(value)
         
         params_dict[key] = value
