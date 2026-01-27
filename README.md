@@ -20,8 +20,11 @@ Development installation (points to the source tree, so changes take effect with
 pip install -e .
 ```
 
-If you have multiple versions of Python 3 installed, any of them may be used to install sla2pdf.
+If you have multiple Python interpreters installed, any of them can host sla2pdf.
 It does not necessarily need to be the one Scribus is linked against.
+
+sla2pdf's frontend requires Python 3.
+The backend that runs inside Scribus is still supposed to be Python 2 compatible, so that sla2pdf may also work with older distributions. See [the note below](#python-2-compatibility-notice).
 
 
 ## Examples
@@ -123,4 +126,4 @@ Several files show the following notice:
 # -- This code needs to remain compatible with Py2 --
 ```
 That is because the file in question is run inside Scribus (either directly, or indirectly through imports).
-Some mainstream Scribus distributions are still built with Python 2, so we intend to keep compatibility for the time being.
+Some people known to the author are still using Scribus builds that use Python 2 (e.g. from Ubuntu 20.04), so we intend to preserve compatibility for the time being.
