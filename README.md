@@ -71,27 +71,27 @@ Basic batch conversion usage:
 from sla2pdf.runner import batch_convert
 
 pdf_params = dict(
-    compressmtd=1,  # JPEG
-    quality=2,      # Medium
-    version=16,     # PDF 1.6 standard
+    compressmtd = 1,  # JPEG
+    quality = 2,      # Medium
+    version = 16,     # PDF 1.6 standard
 )
 pdf_task = dict(
-    inputs=["file1.sla", "file2.sla"],  # input files
-    outputs=["out1.pdf", "out2.pdf"],   # output destinations (file paths, or a directory)
-    converter="pdf",    # pdf converter
-    params=pdf_params,  # custom pdf export parameters
+    inputs = ("file1.sla", "file2.sla"),  # input files
+    outputs = ("out1.pdf", "out2.pdf"),   # output dests (file paths, or a dir)
+    converter = "pdf",    # pdf mode
+    params = pdf_params,  # custom pdf export parameters
 )
 
 img_params = dict(
-    dpi=300,  # resultion
-    transparentBkgnd=True,  # transparent background
-    type="PNG",  # image format
+    dpi = 300,                # resultion
+    transparentBkgnd = True,  # transparent background
+    type = "PNG",             # image format
 )
 img_task = dict(
-    inputs=["file3.sla", "file4.sla"],  # input files
-    outputs=["out3/", "out4/"],         # output destinations (sequence of directories)
-    converter="img",    # image converter
-    params=img_params,  # custom image export parameters
+    inputs = ("file3.sla", "file4.sla"),  # input files
+    outputs = ("out3/", "out4/"),         # output dests (sequence of dirs)
+    converter = "img",    # image mode
+    params = img_params,  # custom image export parameters
 ),
 
 batch_convert([pdf_task, img_task], hide_gui=True)  # run it
