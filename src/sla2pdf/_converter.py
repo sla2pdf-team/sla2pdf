@@ -65,10 +65,12 @@ def export(args):
             prefix = splitext(basename(in_path))[0]
             suffix = args.params["type"].lower()
             
+            # it seems that one exporter instance can serve for all pages
+            exporter = scribus.ImageExport()
+            _set_params(exporter, args.params)
+            
             for n in range(1, n_pages+1):
                 scribus.gotoPage(n)
-                exporter = scribus.ImageExport()
-                _set_params(exporter, args.params)
                 exporter.saveAs( join(out, "%s_%0*d.%s" % (prefix, n_digits, n, suffix)) )
         
         elif args.converter == "pdf":
