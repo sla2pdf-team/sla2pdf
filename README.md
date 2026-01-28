@@ -120,6 +120,14 @@ The actual scripter sources seem to be located at [`plugins/scripter`](https://g
 
 For instance, `scripterapi-PDFfile.html` seems to have been generated from docstrings in [`plugins/scriptplugin/objpdffile.cpp`](https://github.com/scribusproject/scribus/blob/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scriptplugin/objpdffile.cpp).
 
+Conversely, API docs can also be queried from the Python `__doc__` attributes in the scripter. For an example, open Scribus, and click `Script -> Show Console`. In console, paste the following and press `F9` (`Run`):
+```python
+print([k for k in dir(PDFfile) if not k.startswith("__")], end="\n\n")
+print(PDFfile.__doc__, end="\n\n")
+print(PDFfile.effval.__doc__, end="\n\n")
+```
+This will query the attributes of `PDFfile`, its class-level docs, and the docs for a specific property (`effval` in this example).
+
 Further links:
 * https://wiki.scribus.net/canvas/Command_line_scripts
 * https://bugs.scribus.net/view.php?id=16355
