@@ -15,7 +15,7 @@ Normal installation (copies a snapshot of the code to a python package directory
 pip install .
 ```
 
-Development installation (points to the source tree, so changes take effect without needing to re-install)
+Development installation (points to the source tree, so changes take effect without need to re-install)
 ```bash
 pip install -e .
 ```
