@@ -112,8 +112,8 @@ For Scribus API docs, see the `scripterapi-*.html` files in upstream's
 [`docs/en`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/doc/en) (permalink).
 You'll want to download the HTML files and open them in a web browser.
 
-For a user of sla2pdf, the most relevant page is probably `scripterapi-PDFfile.html`.
-It lists the possible export parameters for use with the `--params` option.<br>
+For a user of sla2pdf, key pages are `scripterapi-PDFfile.html` and `scripterapi-ImageExport.html`.
+These lists the possible export parameters to use with the `--params` option, for PDF and image export, respectively.<br>
 For development, `scripterapi-doc.html` and `scripterapi-page.html` are also relevant.
 
 The actual scripter sources seem to be located at [`plugins/scripter`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scripter) and [`plugins/scriptplugin`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scriptplugin).
