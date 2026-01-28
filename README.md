@@ -106,16 +106,22 @@ batch_convert([pdf_task, img_task], hide_gui=True)  # run it
 sla2pdf uses lossy image compression by default. Quality settings can be controlled using the `--params` option.
 
 
-## Development
+## Scribus API docs
 
-Relevant Scribus links:
+For Scribus API docs, see the `scripterapi-*.html` files in upstream's
+[`docs/en`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/doc/en) (permalink).
+You'll want to download the HTML files and open them in a web browser.
 
-* https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-doc.html
-* https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-page.html
-* https://scribus.net/websvn/filedetails.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2Fscripterapi-PDFfile.html
-* https://scribus.net/websvn/listing.php?repname=Scribus&path=%2Ftrunk%2FScribus%2Fdoc%2Fen%2F&#af20fbfeebfcfd73863fd3438754d4fed
+For a user of sla2pdf, the most relevant page is probably `scripterapi-PDFfile.html`.
+It lists the possible export parameters for use with the `--params` option.<br>
+For development, `scripterapi-doc.html` and `scripterapi-page.html` are also relevant.
+
+The actual scripter sources seem to be located at [`plugins/scripter`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scripter) and [`plugins/scriptplugin`](https://github.com/scribusproject/scribus/tree/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scriptplugin).
+
+For instance, `scripterapi-PDFfile.html` seems to have been generated from docstrings in [`plugins/scriptplugin/objpdffile.cpp`](https://github.com/scribusproject/scribus/blob/61b460ad9e2b4461f7d3ef17a19ed9e11433e9aa/scribus/plugins/scriptplugin/objpdffile.cpp).
+
+Further links:
 * https://wiki.scribus.net/canvas/Command_line_scripts
-* https://github.com/scribusproject/scribus/tree/master/scribus/plugins/scripter
 * https://bugs.scribus.net/view.php?id=16355
 
 
